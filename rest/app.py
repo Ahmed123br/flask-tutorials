@@ -16,17 +16,16 @@ def api():
 
     with open('London.csv', 'r') as csv_file:
         reader = csv.DictReader(csv_file)
-        
+
         for entry in reader:
             data.append(dict(entry))
 
-    if request.args:
-        index = int(request.args.get('index'))
-        limit = int(request.args.get('limit'))
-    
-        return jsonify({'data': data[index:limit + index]})
-    else:
+    if not request.args:
         return jsonify({'data': data})
+    index = int(request.args.get('index'))
+    limit = int(request.args.get('limit'))
+
+    return jsonify({'data': data[index:limit + index]})
 
 
 if __name__ == '__main__':

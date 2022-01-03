@@ -20,29 +20,25 @@ def get():
         for line in json_file:
             data += line
 
-    return jsonify({'data': json.loads(data[0:-1] + ']')})
+    return jsonify({'data': json.loads(data[:-1] + ']')})
     
 @app.route('/api/post', methods=['POST'])
 def post():
     response = Response()
     response.headers['Access-Control-Allow-Origin'] = '*'
-    
+
     stats = {
         'Agent': request.headers.get('User-Agent'),
         'Date': request.form.get('Date'),
         'Url': request.form.get('Url'),
     }
-    
+
     if request.headers.getlist("X-Forwarded-For"):
        stats['Ip'] = request.headers.getlist("X-Forwarded-For")[0]
     else:
        stats['Ip'] = request.remote_addr
-    
-    if request.headers.get('Origin'):
-        stats['Origin'] = request.headers.get('Origin')
-    else:
-        stats['Origin'] = 'N/A'
 
+    stats['Origin'] = request.headers.get('Origin') or 'N/A'
     with open('api.json', 'a') as json_file:
         json_file.write(json.dumps(stats, indent=2) + ',')
 

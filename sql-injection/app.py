@@ -33,43 +33,35 @@ def root():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        # get form fields
-        username = request.form['username']
-        password_candidate = request.form['password']
-        
-        # create cursor
-        cur = mysql.connection.cursor()
-        
-        # NEVER DO LIKE THIS
-        #result = cur.execute("SELECT * FROM users WHERE user = '%s'" % username)
-        
-        # DO LIKE THIS INSTEAD
-        result = cur.execute("SELECT * FROM users WHERE user = %s", [username])
+    if request.method != 'POST':
+        return render_template('login.html')
+    # get form fields
+    username = request.form['username']
+    password_candidate = request.form['password']
 
-        if result > 0:
-            # get stored hash
-            data = cur.fetchone()
-            password = data['password']
-            
-            # compare password
-            if sha256_crypt.verify(password_candidate, password):
-                session['logged_in'] = True
-                session['user'] = username
+    # create cursor
+    cur = mysql.connection.cursor()
 
-                return redirect(url_for('root'))
-            else:
-                error = "Invalid password!"
-                return error
-            
-            # close connection
-            cur.close()
-        
-        else:
-            error = "Username not found!"
-            return error
-    
-    return render_template('login.html')
+    # NEVER DO LIKE THIS
+    #result = cur.execute("SELECT * FROM users WHERE user = '%s'" % username)
+
+    # DO LIKE THIS INSTEAD
+    result = cur.execute("SELECT * FROM users WHERE user = %s", [username])
+
+    if result <= 0:
+        return "Username not found!"
+
+    # get stored hash
+    data = cur.fetchone()
+    password = data['password']
+
+    if not sha256_crypt.verify(password_candidate, password):
+        return "Invalid password!"
+
+    session['logged_in'] = True
+    session['user'] = username
+
+    return redirect(url_for('root'))
     
 # logout
 @app.route('/logout')
