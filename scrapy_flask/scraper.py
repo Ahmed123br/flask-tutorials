@@ -38,7 +38,7 @@ class Wellness(scrapy.Spider):
         yield scrapy.Request('https://www.wellness.com/find/%s' % settings['category'], callback=self.state)
             
     def state(self, response):
-        for a in response.css("div.find-item-container a")[0:15]:
+        for a in response.css("div.find-item-container a")[:15]:
             yield response.follow(a, callback=self.city)
             
     def city(self, response):
@@ -59,9 +59,8 @@ class Wellness(scrapy.Spider):
         training = response.xpath('.//span[contains(text(),"Training")]')
 
         # init item
-        item = {}
-        
-        item['First_and_Last_Name'] = response.css('h1::text').get()
+        item = {'First_and_Last_Name': response.css('h1::text').get()}
+
         item['About'] = response.css('.listing-about::text').get()
         item['Services'] = services.xpath('following-sibling::span[1]/text()').extract()
         item['Primary_Specialty'] = response.css('.normal::text').get()

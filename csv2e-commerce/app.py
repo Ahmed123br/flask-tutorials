@@ -21,29 +21,26 @@ def root():
     with open('lulu.csv', 'r') as f:
         # init dataset
         data = [dict(item) for item in csv.DictReader(f)]
-        
+
         # extract page number
         try:
             page = int(request.args.get('page'))
-        
+
         except:
             page = 0
-        
+
         # display items per page
         items_per_page = 5;
-        
-        # starting index
-        index_from = 0;
 
-        # calculate starting index
-        for index in range(page - 1): index_from += items_per_page
-        
+        # starting index
+        index_from = sum(items_per_page for _ in range(page - 1));
+
         # ending index
         index_to = index_from + items_per_page;
-        
+
         # init total pages
-        total_pages = range(int(len(data) / items_per_page) + 1)
-                
+        total_pages = range(len(data) // items_per_page + 1)
+
         # render content
         return render_template_string('''
           <html>
